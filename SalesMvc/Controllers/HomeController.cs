@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SalesMvc.Models;
+using SalesMvc.Models.ViewModels;
 
 namespace SalesMvc.Controllers
 {
@@ -17,14 +18,16 @@ namespace SalesMvc.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Message"] = "Segunda chance pro C#";
+            ViewData["Me"] = "By: Cesario el macho";
+            ViewData["Email"] = "cesario203@outlook.com";
 
             return View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Ola mundo.";
 
             return View();
         }
