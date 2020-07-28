@@ -7,7 +7,7 @@ using SalesMvc.Models;
 using SalesMvc.Services;
 using SalesMvc.Models.ViewModels;
 using SalesMvc.Services.Exceptions;
-using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
+using System.Threading.Tasks;
 
 namespace SalesMvc.Controllers
 {
@@ -21,23 +21,23 @@ namespace SalesMvc.Controllers
             _sellerService = ss;
             _departmentService = ds;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var list = _sellerService.FindAll();
+            var list = await _sellerService.FindAllAsync();
             return View(list);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var departments = _departmentService.FindAll();
+            var departments = await _departmentService.FindAllAsync();
             var viewModel = new SellerFormViewModel { Departments = departments };
             return View(viewModel);
         }
 
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
          
-            var sellerInfo = _sellerService.FindById(id.Value);
+            var sellerInfo = await _sellerService.FindByIdAsync(id.Value);
             if (id == null || sellerInfo == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Invalid Id" });
@@ -49,7 +49,7 @@ namespace SalesMvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(SellerFormViewModel pSeller)
+        public async Task<IActionResult> Create(SellerFormViewModel pSeller)
         {
             if (!ModelState.IsValid)
             {
@@ -59,22 +59,22 @@ namespace SalesMvc.Controllers
             Seller Seller = new Seller(FormSeller.Id, FormSeller.Name, FormSeller.Email, FormSeller.BirthDate, FormSeller.BaseSalary, FormSeller.Department);
 
             Seller.DepartmentId = FormSeller.DepartmentId;
-            _sellerService.Insert(Seller);
+            await _sellerService.InsertAsync(Seller);
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            _sellerService.Remove(id);
+            await _sellerService.RemoveAsync(id);
 
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
-            var seller = _sellerService.FindById(id.Value);
+            var seller = await _sellerService.FindByIdAsync(id.Value);
 
             if(id == null || seller == null)
             {
@@ -84,23 +84,23 @@ namespace SalesMvc.Controllers
             return View(seller);
         }
 
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            var seller = _sellerService.FindById(id.Value);
+            var seller = await _sellerService.FindByIdAsync(id.Value);
 
             if (id == null || seller == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Invalid Id" });
             }
 
-            List<Department> departments = _departmentService.FindAll();
+            List<Department> departments = await _departmentService.FindAllAsync();
             SellerFormViewModel viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
             return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id,SellerFormViewModel pSeller)
+        public async Task<IActionResult> Edit(int id,SellerFormViewModel pSeller)
         {
             if (!ModelState.IsValid)
             {
@@ -114,7 +114,7 @@ namespace SalesMvc.Controllers
             try{
                 Seller Seller = new Seller(FormSeller.Id, FormSeller.Name, FormSeller.Email, FormSeller.BirthDate, FormSeller.BaseSalary, FormSeller.Department);
                 Seller.DepartmentId = FormSeller.DepartmentId;
-                _sellerService.Update(Seller);
+                await _sellerService.UpdateAsync(Seller);
                 return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException e)
