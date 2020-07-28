@@ -33,6 +33,18 @@ namespace SalesMvc.Controllers
             return View(viewModel);
         }
 
+        public IActionResult Delete(int? id)
+        {
+         
+            var sellerInfo = _sellerService.FindById(id.Value);
+            if (id == null || sellerInfo == null)
+            {
+                return NotFound();
+            }
+
+            return View(sellerInfo);
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -43,6 +55,15 @@ namespace SalesMvc.Controllers
 
             Seller.DepartmentId = FormSeller.DepartmentId;
             _sellerService.Insert(Seller);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            _sellerService.Remove(id);
+
             return RedirectToAction(nameof(Index));
         }
     }
