@@ -6,6 +6,7 @@ using SalesMvc.Data;
 using SalesMvc.Models;
 using SalesMvc.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using SalesMvc.Services.Exceptions;
 
 namespace SalesMvc.Services
 {
@@ -39,6 +40,22 @@ namespace SalesMvc.Services
             var seller = _context.Seller.Find(id);
             _context.Seller.Remove(seller);
             _context.SaveChanges();
+        }
+
+        public void Update(Seller seller)
+        {
+            if(!_context.Seller.Any(x=>x.Id == seller.Id))
+            {
+                throw new NotFoundException("Id não encontrado");
+            }
+            try
+            {
+                _context.Update(seller);
+                _context.SaveChanges();
+            }catch(DbUpdateConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
         }
     }
 }

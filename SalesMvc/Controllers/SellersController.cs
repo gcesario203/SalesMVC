@@ -7,6 +7,7 @@ using SalesMvc.Data;
 using SalesMvc.Models;
 using SalesMvc.Services;
 using SalesMvc.Models.ViewModels;
+using SalesMvc.Services.Exceptions;
 
 namespace SalesMvc.Controllers
 {
@@ -77,6 +78,46 @@ namespace SalesMvc.Controllers
             }
 
             return View(seller);
+        }
+
+        public IActionResult Edit(int? id)
+        {
+            var seller = _sellerService.FindById(id.Value);
+
+            if (id == null || seller == null)
+            {
+                return NotFound();
+            }
+
+            List<Department> departments = _departmentService.FindAll();
+            SellerFormViewModel viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id,SellerFormViewModel pSeller)
+        {
+            if(id != pSeller.Seller.Id)
+            {
+                return BadRequest();
+            }
+            var FormSeller = pSeller.Seller;
+            try{
+                Seller Seller = new Seller(FormSeller.Id, FormSeller.Name, FormSeller.Email, FormSeller.BirthDate, FormSeller.BaseSalary, FormSeller.Department);
+                Seller.DepartmentId = FormSeller.DepartmentId;
+                _sellerService.Update(Seller);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (DbConcurrencyException)
+            {
+                return BadRequest();
+            }
+           
         }
     }
 }
