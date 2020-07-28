@@ -1,13 +1,13 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SalesMvc.Data;
+
 using SalesMvc.Models;
 using SalesMvc.Services;
 using SalesMvc.Models.ViewModels;
 using SalesMvc.Services.Exceptions;
+using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
 
 namespace SalesMvc.Controllers
 {
@@ -40,7 +40,7 @@ namespace SalesMvc.Controllers
             var sellerInfo = _sellerService.FindById(id.Value);
             if (id == null || sellerInfo == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Invalid Id" });
             }
 
             return View(sellerInfo);
@@ -74,7 +74,7 @@ namespace SalesMvc.Controllers
 
             if(id == null || seller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Invalid Id" });
             }
 
             return View(seller);
@@ -86,7 +86,7 @@ namespace SalesMvc.Controllers
 
             if (id == null || seller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Invalid Id" });
             }
 
             List<Department> departments = _departmentService.FindAll();
@@ -100,7 +100,7 @@ namespace SalesMvc.Controllers
         {
             if(id != pSeller.Seller.Id)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
             }
             var FormSeller = pSeller.Seller;
             try{
@@ -109,15 +109,26 @@ namespace SalesMvc.Controllers
                 _sellerService.Update(Seller);
                 return RedirectToAction(nameof(Index));
             }
-            catch (NotFoundException)
+            catch (NotFoundException e)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = e.Message});
             }
-            catch (DbConcurrencyException)
+            catch (DbConcurrencyException e)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = e.Message });
             }
            
+        }
+
+        public IActionResult Error(string message)
+        {
+            var viewModel = new ErrorViewModel
+            {
+                Message = message,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            };
+
+            return View(viewModel);
         }
     }
 }
