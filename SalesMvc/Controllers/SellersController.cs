@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SalesMvc.Data;
 using SalesMvc.Models;
 using SalesMvc.Services;
+using SalesMvc.Models.ViewModels;
 
 namespace SalesMvc.Controllers
 {
@@ -13,10 +14,11 @@ namespace SalesMvc.Controllers
     {
 
         private readonly SellerService _sellerService;
-
-        public SellersController(SellerService ss)
+        private readonly DepartmentService _departmentService;
+        public SellersController(SellerService ss,DepartmentService ds)
         {
             _sellerService = ss;
+            _departmentService = ds;
         }
         public IActionResult Index()
         {
@@ -26,15 +28,21 @@ namespace SalesMvc.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            var departments = _departmentService.FindAll();
+            var viewModel = new SellerFormViewModel { Departments = departments };
+            return View(viewModel);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Seller pSeller)
+        public IActionResult Create(SellerFormViewModel pSeller)
         {
-            _sellerService.Insert(pSeller);
+            var FormSeller = pSeller.Seller;
+            Seller Seller = new Seller(FormSeller.Id, FormSeller.Name, FormSeller.Email, FormSeller.BirthDate, FormSeller.BaseSalary, FormSeller.Department);
+
+            Seller.DepartmentId = FormSeller.DepartmentId;
+            _sellerService.Insert(Seller);
             return RedirectToAction(nameof(Index));
         }
     }
