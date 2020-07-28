@@ -51,6 +51,10 @@ namespace SalesMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(SellerFormViewModel pSeller)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(pSeller);
+            }
             var FormSeller = pSeller.Seller;
             Seller Seller = new Seller(FormSeller.Id, FormSeller.Name, FormSeller.Email, FormSeller.BirthDate, FormSeller.BaseSalary, FormSeller.Department);
 
@@ -98,7 +102,11 @@ namespace SalesMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id,SellerFormViewModel pSeller)
         {
-            if(id != pSeller.Seller.Id)
+            if (!ModelState.IsValid)
+            {
+                return View(pSeller);
+            }
+            if (id != pSeller.Seller.Id)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
             }
