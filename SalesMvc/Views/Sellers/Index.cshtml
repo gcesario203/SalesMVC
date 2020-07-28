@@ -36,10 +36,10 @@
         @foreach (var seller in Model)
         {
     <tr>
-        <td>@seller.Name</td>
-        <td>@seller.Email</td>
-        <td>@seller.BirthDate</td>
-        <td>@seller.BaseSalary</td>
+        <td>@Html.DisplayFor(x=>seller.Name)</td>
+        <td>@Html.DisplayFor(x=>seller.Email)</td>
+        <td>@Html.DisplayFor(x => seller.BirthDate)</td>
+        <td>@Html.DisplayFor(x => seller.BaseSalary)</td>
         <td><a asp-action="Edit" asp-route-id="@seller.Id">Edit</a></td>
         <td><a asp-action="Details" asp-route-id="@seller.Id">Details</a></td>
         <td><a asp-action="Delete" asp-route-id="@seller.Id">Delete</a></td>
